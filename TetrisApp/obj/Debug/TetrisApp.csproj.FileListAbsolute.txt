@@ -1,0 +1,10 @@
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\bin\Debug\TetrisApp.exe.config
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\bin\Debug\TetrisApp.exe
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\bin\Debug\TetrisApp.pdb
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.csprojAssemblyReference.cache
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.Properties.Resources.resources
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.csproj.GenerateResource.cache
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.csproj.CoreCompileInputs.cache
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.exe
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.pdb
+C:\Users\svrij\source\repos\TetrisApp\TetrisApp\obj\Debug\TetrisApp.TetrisForm.resources
