@@ -46,7 +46,6 @@ namespace TetrisApp
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Play Local";
             this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
             // radioButton2
             // 
@@ -60,15 +59,15 @@ namespace TetrisApp
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(16, 186);
+            this.label1.Location = new System.Drawing.Point(16, 161);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(151, 19);
+            this.label1.Size = new System.Drawing.Size(238, 19);
             this.label1.TabIndex = 2;
             this.label1.Text = "Serverstate: Disconnected";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(167, 186);
+            this.button1.Location = new System.Drawing.Point(16, 186);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(87, 28);
             this.button1.TabIndex = 3;

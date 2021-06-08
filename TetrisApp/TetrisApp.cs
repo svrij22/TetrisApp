@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace TetrisApp
 {
@@ -15,11 +12,8 @@ namespace TetrisApp
             Application.SetCompatibleTextRenderingDefault(false);
 
             var clientForm = new ClientForm();
+            new TetrisClient(clientForm);
             Application.Run(clientForm);
-            
-            //var form = new TetrisForm();
-            //new TetrisEngine(form);
-            //Application.Run(form);
         }
     }
 }

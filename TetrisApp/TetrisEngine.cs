@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -45,6 +44,8 @@ namespace TetrisApp
             tetriminoList.Add(new Tetrimino(this));
             tetriminoList.Add(new Tetrimino(this));
             startTimer();
+            
+            //TODO ghost piece maken
         }
 
         public void startTimer()

@@ -9,5 +9,15 @@ namespace TetrisApp
         {
             InitializeComponent();
         }
+
+        public Label getServerLabel()
+        {
+            return label1;
+        }
+
+        public RadioButton getRadioButton()
+        {
+            return radioButton1;
+        }
     }
 }
