@@ -13,9 +13,13 @@ namespace TetrisApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var form = new TetrisForm();
-            new TetrisEngine(form);
-            Application.Run(form);
+
+            var clientForm = new ClientForm();
+            Application.Run(clientForm);
+            
+            //var form = new TetrisForm();
+            //new TetrisEngine(form);
+            //Application.Run(form);
         }
     }
 }
