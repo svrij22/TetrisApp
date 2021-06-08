@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace TetrisApp
 {
-    public class TetrisPiece
+    public class Tetrimino
     {
 
         public int[,] pieceMatrix;
@@ -15,7 +15,7 @@ namespace TetrisApp
         public TetrisEngine Engine;
         public Boolean isLocked;
 
-        public TetrisPiece(TetrisEngine engine)
+        public Tetrimino(TetrisEngine engine)
         {
             //Set game
             this.Engine = engine;

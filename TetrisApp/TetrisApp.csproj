@@ -58,7 +58,7 @@
     <Compile Include="TetrisApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TetrisEngine.cs" />
-    <Compile Include="TetrisPiece.cs" />
+    <Compile Include="Tetrimino.cs" />
     <Compile Include="TetrisState.cs" />
     <EmbeddedResource Include="TetrisForm.resx">
       <DependentUpon>TetrisForm.cs</DependentUpon>

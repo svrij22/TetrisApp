@@ -19,8 +19,10 @@ namespace TetrisApp
         private List<TetrisBlock> tetrisBlocks = new List<TetrisBlock>();
         private int steps;
         private Size gameSize;
+
+        private int defaultInterval = 600;
         
-        private List<TetrisPiece> tetrisPieces = new List<TetrisPiece>();
+        private List<Tetrimino> tetriminoList = new List<Tetrimino>();
 
         private int score;
         public readonly Random rnd = new Random();
@@ -40,8 +42,8 @@ namespace TetrisApp
             form.KeyPress += keyBoardHandler;
             
             //Game Logic
-            tetrisPieces.Add(new TetrisPiece(this));
-            tetrisPieces.Add(new TetrisPiece(this));
+            tetriminoList.Add(new Tetrimino(this));
+            tetriminoList.Add(new Tetrimino(this));
             startTimer();
         }
 
@@ -49,7 +51,7 @@ namespace TetrisApp
         {
             // Create a timer and set a two second interval.
             aTimer = new System.Timers.Timer();
-            aTimer.Interval = 120;
+            aTimer.Interval = defaultInterval;
             aTimer.Elapsed += this.gameStep;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
@@ -66,7 +68,7 @@ namespace TetrisApp
             }
             checkLines();
             redraw();
-            aTimer.Interval = 120;
+            aTimer.Interval = defaultInterval;
         }
         
         //Line mutations
@@ -196,19 +198,19 @@ namespace TetrisApp
         {
             if (state == GameOver) return;
             
-            Console.WriteLine(tetrisPieces);
-            tetrisPieces.RemoveAt(0);
-            tetrisPieces.Add(new TetrisPiece(this));
+            Console.WriteLine(tetriminoList);
+            tetriminoList.RemoveAt(0);
+            tetriminoList.Add(new Tetrimino(this));
         }
 
-        public TetrisPiece thisPiece()
+        public Tetrimino thisPiece()
         {
-            return tetrisPieces[0];
+            return tetriminoList[0];
         }
 
-        public TetrisPiece nextPiece()
+        public Tetrimino nextPiece()
         {
-            return tetrisPieces[1];
+            return tetriminoList[1];
         }
 
         internal void speedUp()
