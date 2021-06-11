@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using static TetrisApp.TetrisPlayer;
 
 namespace TetrisApp
 {
@@ -12,13 +13,13 @@ namespace TetrisApp
         public int[,] pieceMatrix;
         public Point position;
         public Color color;
-        public TetrisEngine Engine;
+        public TetrisPlayer Player;
         public Boolean isLocked;
 
-        public Tetrimino(TetrisEngine engine)
+        public Tetrimino(TetrisPlayer Player)
         {
             //Set game
-            this.Engine = engine;
+            this.Player = Player;
 
             //Random color and size
             pieceMatrix = getRandPiece();
@@ -27,16 +28,14 @@ namespace TetrisApp
             //Set random point thats slightly visible
             do
             {
-                position = new Point(engine.rnd.Next(7) + 1, -2);
+                position = new Point(Player.rnd.Next(7) + 1, -2);
             } while (!canMove(0, 0, getPositionArray(pieceMatrix, 0, 0)));
             
             //Rotate randomly
-            for (var i = 0; i < engine.rnd.Next(3); i++)
+            for (var i = 0; i < Player.rnd.Next(3); i++)
             {
-                RotateMatrix(pieceMatrix, 3, true);
+                rotateMatrix(pieceMatrix, 3, true);
             }
-            
-            engine.redraw();
         }
 
         //Keyboard events
@@ -66,13 +65,9 @@ namespace TetrisApp
                     this.position.X += 1;
                 }
             }
-            if (e.KeyChar.Equals('e'))
-            {
-                Engine.speedUp();
-            }
-            Engine.redraw();
         }
 
+        //Attempt rotation for kicks
         public void attemptRotation(bool clockwise)
         {
             //Normal rotation
@@ -84,7 +79,7 @@ namespace TetrisApp
                 int dy = kickposArr[k, 1];
                 if (canRotate(clockwise, dx, dy))
                 {
-                    pieceMatrix = RotateMatrix(pieceMatrix, 3, clockwise);
+                    pieceMatrix = rotateMatrix(pieceMatrix, 3, clockwise);
                     position.X += dx;
                     position.Y += dy;
                     return;
@@ -96,7 +91,7 @@ namespace TetrisApp
         public bool canRotate(bool clockwise, int dx, int dy)
         {
             //When rotated, only get possible new positions
-            int[,] rotatedMatrix = RotateMatrix(pieceMatrix, 3, clockwise);
+            int[,] rotatedMatrix = rotateMatrix(pieceMatrix, 3, clockwise);
             List<Point> rotatedPositions = getPositionArray(rotatedMatrix,dx,dy);
             return canMove(dx, dy, rotatedPositions);
         }
@@ -105,7 +100,7 @@ namespace TetrisApp
         public int[,] getRandPiece()
         {
             int[,] array2D = { { 0, 1, 0}, { 1, 1, 0}, { 0, 1, 0} };
-            switch (Engine.rnd.Next(8))
+            switch (Player.rnd.Next(8))
             {
                 case 0: // Small T
                     array2D = new[,] { { 0, 1, 0}, { 1, 1, 0}, { 0, 1, 0} };
@@ -169,6 +164,28 @@ namespace TetrisApp
             return positions;
         }
         
+        
+
+        /*
+         * Position Checking
+         */
+        public bool positionIsNotFree(Point givenPoint)
+        {
+            foreach (TetrisBlock block in Player.tetrisBlocks)
+            {
+                if (block.position == givenPoint) return true;
+            }
+            return false;
+        }
+
+        public bool positionOutOfBounds(Point givenPoint)
+        {
+            if (givenPoint.X < 0) return true;
+            if (givenPoint.X > Player.boxSize.Width-1) return true;
+            if (givenPoint.Y > Player.boxSize.Height) return true;
+            return false;
+        }
+        
         public List<TetrisBlock> getPreviewBlocks()
         {
             List<TetrisBlock> blocks = new List<TetrisBlock> { };
@@ -182,13 +199,16 @@ namespace TetrisApp
             return blocks;
         }
 
+        //Sets a random color
         public void setRandColor()
         {
-            Color randomColor = Color.FromArgb(Engine.rnd.Next(128) + 128, Engine.rnd.Next(128) + 128, Engine.rnd.Next(128) + 128);
+            Color randomColor = Color.FromArgb(Player.rnd.Next(128) + 128, Player.rnd.Next(128) + 128, Player.rnd.Next(128) + 128);
             color = randomColor;
         }
 
-        static int[,] RotateMatrix(int[,] matrix, int n, Boolean clockwise)
+        
+        //rotates the matrix clockwise or counterclockwise
+        static int[,] rotateMatrix(int[,] matrix, int n, Boolean clockwise)
         {
             int[,] ret = new int[n, n];
             for (int i = 0; i < n; ++i)
@@ -203,15 +223,18 @@ namespace TetrisApp
             }
             return ret;
         }
+        
+        //Checks if matrix is able to move dx/dy positions
         public Boolean canMove(int dx, int dy, List<Point> positionArray)
         {
             foreach (Point point in positionArray)
-                if (Engine.positionIsNotFree(new Point(point.X + dx, point.Y + dy))) return false;
+                if (positionIsNotFree(new Point(point.X + dx, point.Y + dy))) return false;
             foreach (Point point in positionArray)
-                if (Engine.positionOutOfBounds(new Point(point.X + dx, point.Y + 1 + dy))) return false;
+                if (positionOutOfBounds(new Point(point.X + dx, point.Y + 1 + dy))) return false;
             return true;
         }
 
+        //Move step event
         public void move()
         {
             if (canMove(0, 1, getPositionArray(pieceMatrix,0,0)))
@@ -225,13 +248,14 @@ namespace TetrisApp
             }
         }
 
+        //Lock the piece and starts a new one
         public void pieceLock()
         {
             foreach (TetrisBlock block in getBlocksForPiece())
             {
-                Engine.addBlock(block);
+                Player.addBlock(block);
             }
-            Engine.newPiece();
+            Player.newPiece();
         }
     }
 }

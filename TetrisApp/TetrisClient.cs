@@ -82,7 +82,7 @@ namespace TetrisApp
         public void onTetrisRun()
         {
             var form = new TetrisForm();
-            new TetrisEngine(form);
+            new TetrisEngine(form, mpButton.Checked);
             Application.Run(form);
         }
         
