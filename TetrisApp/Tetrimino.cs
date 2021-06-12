@@ -38,6 +38,15 @@ namespace TetrisApp
             }
         }
 
+        public Tetrimino(TetrisPlayer player, int[,] matrix, Point point, int i)
+        {
+            //Set default values
+            this.Player = player;
+            pieceMatrix = matrix;
+            color = Color.FromArgb(i);
+            position = point;
+        }
+
         //Keyboard events
         public void keyboardEvent(KeyPressEventArgs e)
         {
@@ -239,7 +248,7 @@ namespace TetrisApp
         {
             if (canMove(0, 1, getPositionArray(pieceMatrix,0,0)))
             {
-                this.position.Y += 1;
+                position.Y += 1;
             }
             else
             {

@@ -8,55 +8,65 @@ namespace TetrisApp
 {
     public class TetrisEngine
     {
-        private readonly TetrisForm form;
+        private TetrisForm tetrisForm;
         private Font fnt = new Font("Arial", 10);
         private System.Timers.Timer aTimer;
         private int steps;
         private Size gameSize;
         private int defaultInterval = 600;
-        private int score;
 
         private TetrisPlayer localPlayer;
         private TetrisPlayer otherPlayer;
 
         private bool isMultiplayer;
+        public TetrisClient tetrisClient;
         
-        private static readonly Random rnd = new Random();
+        private Random rand;
 
-        public TetrisEngine(TetrisForm form, bool ismultiplayer)
+        public TetrisEngine(TetrisForm form, bool ismultiplayerm, TetrisClient client)
         {
-            this.form = form;
+            tetrisClient = client;
+            rand = new Random(Guid.NewGuid().GetHashCode());
+            client?.syncRandom();
+            setup(form, ismultiplayerm);
+        }
+
+        public void setup(TetrisForm form, bool ismultiplayer)
+        {
+            tetrisForm = form;
             
             //Set multiplayer
             isMultiplayer = ismultiplayer;
             
             //Set gamesize
-            gameSize = new Size(15, 5); // sideways, downwards
+            gameSize = new Size(20, 15); // sideways, downwards
             
-            //Set form size
-            form.setGameSize(gameSize, isMultiplayer);
+            //Set tetrisForm size
+            tetrisForm.setGameSize(gameSize, isMultiplayer);
             
             //Get local box
-            localPlayer = new TetrisPlayer(form.getLocalPlayerBox(), gameSize, rnd);
+            localPlayer = new TetrisPlayer(tetrisForm.getLocalPlayerBox(), gameSize, rand, this);
             
             //Set paint event
-            form.getLocalPlayerBox().Paint += (o, args) => paintForPlayer(args, localPlayer);
+            tetrisForm.getLocalPlayerBox().Paint += (o, args) => paintForPlayer(args, localPlayer, true);
             
             //Set keypress event
-            form.getPreviewPanel().Paint += paintPreview;
-            form.KeyPress += keyBoardHandler;
+            tetrisForm.getPreviewPanel().Paint += paintPreview;
+            tetrisForm.KeyPress += keyBoardHandler;
             
             if (isMultiplayer)
             {
-                otherPlayer = new TetrisPlayer(form.getOtherPlayerBox(), gameSize, rnd);
-                form.getOtherPlayerBox().Paint += (o, args) => paintForPlayer(args, otherPlayer);
+                otherPlayer = new TetrisPlayer(tetrisForm.getOtherPlayerBox(), gameSize, rand, this);
+                tetrisForm.getOtherPlayerBox().Paint += (o, args) => paintForPlayer(args, otherPlayer, false);
             }
             
             //Start timer
             startTimer();
             
             //TODO ghost piece maken
+            //TODO als client wordt gesloten kill het project
         }
+        
 
         public void startTimer()
         {
@@ -67,6 +77,37 @@ namespace TetrisApp
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
         }
+        
+        /*
+         * Multiplayer
+         */
+
+        public void otherPlayerKeyPress(char key)
+        {
+            otherPlayer.thisPiece().keyboardEvent(new KeyPressEventArgs(key));
+            redraw();
+        }
+
+        private void keyBoardHandler(object sender, KeyPressEventArgs e)
+        {
+            localPlayer.thisPiece().keyboardEvent(e);
+            tetrisClient?.sendKeyPress(e.KeyChar);
+            redraw();
+        }
+        
+        public void otherPlayerSetGrid(String grid)
+        {
+            otherPlayer.blocksFromString(grid);
+        }
+
+        public void otherPlayerSetRand(int i)
+        {
+            otherPlayer.setRandom(new Random(i));
+        }
+
+        /*
+         * Game logic
+         */
 
         //Gamestep
         public void gameStep(object source, System.Timers.ElapsedEventArgs e)
@@ -77,6 +118,13 @@ namespace TetrisApp
                 otherPlayer.doGameStep();
             }
             steps++;
+            
+            /*Every 15 steps*/
+            if (steps % 15 == 0)
+            {
+                tetrisClient.SendSerializedGrid(localPlayer.serializeBlocks());
+            }
+            
             redraw();
             aTimer.Interval = defaultInterval;
         }
@@ -84,7 +132,7 @@ namespace TetrisApp
         public void redraw()
         {
             localPlayer.getBox().Invalidate();
-            form.getPreviewPanel().Invalidate();
+            tetrisForm.getPreviewPanel().Invalidate();
             
             if (isMultiplayer)
             {
@@ -92,13 +140,10 @@ namespace TetrisApp
             }
         }
 
-        private void keyBoardHandler(object sender, KeyPressEventArgs e)
-        {
-            localPlayer.thisPiece().keyboardEvent(e);
-            redraw();
-        }
-
-        public void paintForPlayer(PaintEventArgs e, TetrisPlayer player) {
+        /*
+         * Drawing
+         */
+        public void paintForPlayer(PaintEventArgs e, TetrisPlayer player, bool drawScore) {
             
             //Draw game
             Graphics g = e.Graphics; //New Graphics Object
@@ -117,9 +162,12 @@ namespace TetrisApp
             {
                 block.draw(g);
             }
-            
+
             //Draw Score
-            form.setPanelInfo(score, player.state, steps);
+            if (drawScore)
+            {
+                tetrisForm.setPanelInfo(player.playerScore, player.state, steps);
+            }
         }
 
         public void paintPreview(object sender, PaintEventArgs e)
@@ -128,7 +176,7 @@ namespace TetrisApp
             Graphics g = e.Graphics; //New Graphics Object
 
             //Get panel
-            Panel prevPanel = form.getPreviewPanel();
+            Panel prevPanel = tetrisForm.getPreviewPanel();
             
             //Fill background
             g.FillRectangle(Brushes.DimGray, new Rectangle(new Point(0, 0), new Size(prevPanel.Width, prevPanel.Height)));

@@ -32,6 +32,12 @@ namespace TetrisApp
             panel1.Top = 16;
             panel1.Height = Size.Height - 72;
             
+            //Kill application when closing
+            Closing += (sender, args) =>
+            {
+                Application.Exit();
+            };
+            
             /*Multiplayer other box*/
             if (multiplayer)
             {

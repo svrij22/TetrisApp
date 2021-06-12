@@ -31,19 +31,19 @@ namespace TetrisApp
         {
             brush = new SolidBrush(color);
         }
+        
+        /*
+         * Serialization for optimal game sync
+         */
 
         public string serialize()
         {
             return "||"+position.X+","+position.Y+","+((SolidBrush) brush).Color.ToArgb();
         }
 
-        public TetrisBlock fromString(string serializedBlock)
+        public static TetrisBlock fromString(string serializedBlock)
         {
-            /**/
-            serializedBlock = serializedBlock.Split('|')[2];
-            /**/
             var splitted = serializedBlock.Split(',');
-            
             Color color = Color.FromArgb(Convert.ToInt32(splitted[2]));
             Point point = new Point(Convert.ToInt32(splitted[0]), Convert.ToInt32(splitted[1]));
             return new TetrisBlock(color, point);

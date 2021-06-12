@@ -19,5 +19,10 @@ namespace TetrisApp
         {
             return radioButton1;
         }
+
+        public Button getReadyButton()
+        {
+            return button1;
+        }
     }
 }

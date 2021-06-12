@@ -18,16 +18,18 @@ namespace TetrisApp
         public PictureBox playerBox;
         public int playerScore;
         public Size boxSize;
-        public readonly Random rnd;
+        public Random rnd;
         private List<Tetrimino> tetriminoList = new List<Tetrimino>();
         public TetrisState state = Started;
         public int lineRemove = -1;
+        public TetrisEngine engine;
 
-        public TetrisPlayer(PictureBox playerBox, Size boxSize, Random rnd)
+        public TetrisPlayer(PictureBox playerBox, Size boxSize, Random rnd, TetrisEngine engine)
         {
             this.playerBox = playerBox;
             this.boxSize = boxSize;
             this.rnd = rnd;
+            this.engine = engine;
             
             tetriminoList.Add(new Tetrimino(this));
             tetriminoList.Add(new Tetrimino(this));
@@ -38,20 +40,30 @@ namespace TetrisApp
          */
 
 
-        public void getBlocksSerialized()
+        public string serializeBlocks()
         {
-            foreach (var tetrisBlock in tetrisBlocks)
+            StringWriter stringWriter = new StringWriter();
+            foreach (var tetrisBlock in tetrisBlocks) { stringWriter.Write(tetrisBlock.serialize()); }
+            return stringWriter.ToString();
+        }
+
+        public void blocksFromString(String blocksStr)
+        {
+            tetrisBlocks = new List<TetrisBlock>();
+            foreach (var blockStr in blocksStr.Split('|'))
             {
-                Debug.WriteLine(tetrisBlock.serialize());
                 try
                 {
-                    Debug.WriteLine(tetrisBlock.fromString(tetrisBlock.serialize()).serialize());
+                    tetrisBlocks.Add(TetrisBlock.fromString(blockStr));
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                }
+                catch (Exception ignored)
+                { }
             }
+        }
+
+        public void setRandom(Random newRandom)
+        {
+            rnd = newRandom;
         }
         
         /*
@@ -60,7 +72,6 @@ namespace TetrisApp
         
         public void doGameStep()
         {
-            getBlocksSerialized();
             removeWhiteBlocks();
             if (state != GameOver)
             {
@@ -68,7 +79,6 @@ namespace TetrisApp
             }
             checkLines();
         }
-        
         
         /**/
         /* Blocks Logic*/
@@ -92,7 +102,8 @@ namespace TetrisApp
             
             Console.WriteLine(tetriminoList);
             tetriminoList.RemoveAt(0);
-            tetriminoList.Add(new Tetrimino(this));
+            Tetrimino newTet = new Tetrimino(this);
+            tetriminoList.Add(newTet);
         }
 
         public Tetrimino thisPiece()

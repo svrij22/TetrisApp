@@ -69,7 +69,7 @@ namespace TetrisApp
             // 
             this.button1.Location = new System.Drawing.Point(16, 186);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(87, 28);
+            this.button1.Size = new System.Drawing.Size(132, 28);
             this.button1.TabIndex = 3;
             this.button1.Text = "Start";
             this.button1.UseVisualStyleBackColor = true;
