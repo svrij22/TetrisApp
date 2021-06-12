@@ -143,7 +143,26 @@ namespace TetrisApp
         {
             foreach (TetrisBlock block in getBlocksForPiece())
             {
-                block.draw(g);
+                block.draw(g, false);
+            }
+        }
+        
+        public void drawGhost(Graphics g, int height)
+        {
+            var maxDown = 0;
+            for(var i = 1; i < height; i++)
+            {
+                if (canMove(0, i, getPositionArray(pieceMatrix, 0, 0)))
+                {
+                    maxDown = i;
+                }
+            }
+            
+            foreach (TetrisBlock block in getBlocksForPiece())
+            {
+                var opacity = 0.5;
+                block.position.Y += maxDown;
+                block.draw(g, true);
             }
         }
 
@@ -172,7 +191,6 @@ namespace TetrisApp
             }
             return positions;
         }
-        
         
 
         /*
@@ -266,5 +284,6 @@ namespace TetrisApp
             }
             Player.newPiece();
         }
+
     }
 }

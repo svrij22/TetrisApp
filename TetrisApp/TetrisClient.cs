@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -18,6 +19,9 @@ namespace TetrisApp
         public RadioButton mpButton;
         public Button readyButton;
         public TetrisEngine currentEngine;
+
+        public Random ownRandom;
+        public Random otherRandom;
         
         public TetrisClient(ClientForm form)
         {
@@ -54,16 +58,29 @@ namespace TetrisApp
             }
         }
 
+        public void disconnectClient()
+        {
+            string caption = "Disconnected. We're sorry :(";
+            MessageBoxButtons buttons = MessageBoxButtons.OK;
+            stopConnection();
+            currentEngine.tetrisForm.Hide();
+            currentEngine.stopTimer();
+            currentEngine = null;
+            clientForm.Show();
+            MessageBox.Show("", caption, buttons);
+        }
+
         //Player is getting ready to play
         public void readyUp()
         {
             //Local Play
             if (mpButton.Checked)
             {
-                onTetrisRun();
+                onTetrisRun(new Random(), new Random());
             }
             else
             {
+                if (Connection == null) return;
                 //Ready Up
                 if (Connection.State == HubConnectionState.Connected)
                 {
@@ -96,7 +113,18 @@ namespace TetrisApp
             //On Run Signal
             Connection.On("Run", () =>
             {
-                onTetrisRun();
+                int i = Guid.NewGuid().GetHashCode();
+                ownRandom = new Random(i);
+                Debug.WriteLine(ownRandom.GetHashCode());
+                Connection.InvokeAsync("TradeRandom", i);
+            });
+            
+            //On Trade Signal
+            Connection.On("TradeRandom", (int random) =>
+            {
+                otherRandom = new Random(random);
+                Debug.WriteLine(otherRandom.GetHashCode());
+                onTetrisRun( ownRandom, otherRandom);
             });
             
             //On position signal
@@ -109,12 +137,6 @@ namespace TetrisApp
             Connection.On<string>("SendSerializedGrid", grid =>
             {
                 currentEngine.otherPlayerSetGrid(grid);
-            });
-            
-            //On random signal
-            Connection.On<int>("SyncRandom", rand =>
-            {
-                currentEngine.otherPlayerSetRand(rand);
             });
             
             //Attempt start
@@ -136,12 +158,7 @@ namespace TetrisApp
         {
             Connection.InvokeAsync("SendSerializedGrid", grid);
         }
-        
-        public void syncRandom()
-        {
-            Connection.InvokeAsync("SyncRandom", Guid.NewGuid().GetHashCode());
-        }
-        
+
         /*
          * 
          */
@@ -163,12 +180,12 @@ namespace TetrisApp
         }
 
         //Hide form and start tetris
-        public void onTetrisRun()
+        public void onTetrisRun(Random ownRandom, Random otherRandom)
         {
             clientForm.Hide();
             var form = new TetrisForm();
             TetrisClient attachedClient = (!mpButton.Checked) ? this : null;
-            currentEngine = new TetrisEngine(form, !mpButton.Checked, attachedClient);
+            currentEngine = new TetrisEngine(form, !mpButton.Checked, attachedClient, ownRandom, otherRandom);
         }
         
         //Ping timer elapsed
@@ -188,12 +205,14 @@ namespace TetrisApp
             if (Connection == null)
             {
                 ServerLabel.Text = "State: Failed";
+                disconnectClient();
                 return;
             }
             
             if (Connection.State == HubConnectionState.Disconnected)
             {
                 ServerLabel.Text = "State: Stopped";
+                disconnectClient();
             }
             
             if (Connection.State == HubConnectionState.Connected)

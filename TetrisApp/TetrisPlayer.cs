@@ -65,6 +65,11 @@ namespace TetrisApp
         {
             rnd = newRandom;
         }
+
+        public Random getRandom()
+        {
+            return rnd;
+        }
         
         /*
          * GAME LOGIC
@@ -180,6 +185,11 @@ namespace TetrisApp
         public PictureBox getBox()
         {
             return playerBox;
+        }
+
+        public bool isGameOver()
+        {
+            return state == GameOver;
         }
     }
 }

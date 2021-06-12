@@ -20,11 +20,15 @@ namespace TetrisApp
             this.position = position;
         }
 
-        public void draw(Graphics g)
+        public void draw(Graphics g, bool opaque)
         {
             Point pos = new Point(position.X * 16, position.Y * 16);
             Rectangle rectangle = new Rectangle(pos, new Size(16, 16));
             g.FillRectangle(brush, rectangle);
+            if (opaque)
+            {
+                g.FillRectangle(new SolidBrush(Color.FromArgb(128, 0, 0, 0)), rectangle);
+            }
         }
 
         public void setColor(Color color)

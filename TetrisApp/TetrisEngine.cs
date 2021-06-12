@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,30 +9,26 @@ namespace TetrisApp
 {
     public class TetrisEngine
     {
-        private TetrisForm tetrisForm;
+        public TetrisForm tetrisForm;
         private Font fnt = new Font("Arial", 10);
         private System.Timers.Timer aTimer;
         private int steps;
         private Size gameSize;
-        private int defaultInterval = 600;
+        private int defaultInterval = 480;
 
         private TetrisPlayer localPlayer;
         private TetrisPlayer otherPlayer;
 
         private bool isMultiplayer;
         public TetrisClient tetrisClient;
-        
-        private Random rand;
 
-        public TetrisEngine(TetrisForm form, bool ismultiplayerm, TetrisClient client)
+        public TetrisEngine(TetrisForm form, bool ismultiplayerm, TetrisClient client, Random ownRandom, Random otherRandom)
         {
             tetrisClient = client;
-            rand = new Random(Guid.NewGuid().GetHashCode());
-            client?.syncRandom();
-            setup(form, ismultiplayerm);
+            setup(form, ismultiplayerm, ownRandom, otherRandom);
         }
 
-        public void setup(TetrisForm form, bool ismultiplayer)
+        public void setup(TetrisForm form, bool ismultiplayer, Random ownRandom, Random otherRandom)
         {
             tetrisForm = form;
             
@@ -39,13 +36,13 @@ namespace TetrisApp
             isMultiplayer = ismultiplayer;
             
             //Set gamesize
-            gameSize = new Size(20, 15); // sideways, downwards
+            gameSize = new Size(40, 40); // sideways, downwards
             
             //Set tetrisForm size
             tetrisForm.setGameSize(gameSize, isMultiplayer);
             
             //Get local box
-            localPlayer = new TetrisPlayer(tetrisForm.getLocalPlayerBox(), gameSize, rand, this);
+            localPlayer = new TetrisPlayer(tetrisForm.getLocalPlayerBox(), gameSize, ownRandom, this);
             
             //Set paint event
             tetrisForm.getLocalPlayerBox().Paint += (o, args) => paintForPlayer(args, localPlayer, true);
@@ -56,7 +53,7 @@ namespace TetrisApp
             
             if (isMultiplayer)
             {
-                otherPlayer = new TetrisPlayer(tetrisForm.getOtherPlayerBox(), gameSize, rand, this);
+                otherPlayer = new TetrisPlayer(tetrisForm.getOtherPlayerBox(), gameSize, otherRandom, this);
                 tetrisForm.getOtherPlayerBox().Paint += (o, args) => paintForPlayer(args, otherPlayer, false);
             }
             
@@ -64,7 +61,6 @@ namespace TetrisApp
             startTimer();
             
             //TODO ghost piece maken
-            //TODO als client wordt gesloten kill het project
         }
         
 
@@ -100,11 +96,6 @@ namespace TetrisApp
             otherPlayer.blocksFromString(grid);
         }
 
-        public void otherPlayerSetRand(int i)
-        {
-            otherPlayer.setRandom(new Random(i));
-        }
-
         /*
          * Game logic
          */
@@ -112,6 +103,11 @@ namespace TetrisApp
         //Gamestep
         public void gameStep(object source, System.Timers.ElapsedEventArgs e)
         {
+            
+            //Check game over
+            gameEndEvent();
+            
+            //Game step
             localPlayer.doGameStep();
             if (isMultiplayer)
             {
@@ -127,6 +123,33 @@ namespace TetrisApp
             
             redraw();
             aTimer.Interval = defaultInterval;
+        }
+
+        public void gameEndEvent()
+        {
+            if (!isMultiplayer)
+            {
+                if (localPlayer.state == TetrisState.GameOver)
+                {
+                    aTimer.Enabled = false;
+                    string caption = "Game over";
+                    string message = "Your score: " + localPlayer.playerScore;
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons);
+                }
+            }
+            else
+            {
+                if (localPlayer.isGameOver() && otherPlayer.isGameOver())
+                {
+                    var hasWon = localPlayer.playerScore > otherPlayer.playerScore;
+                    aTimer.Enabled = false;
+                    string caption = hasWon ? "You win!" : "Game over sucker";
+                    string message = "Your score: " + localPlayer.playerScore + " vs " + otherPlayer.playerScore;
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, caption, buttons);
+                }
+            }
         }
 
         public void redraw()
@@ -155,12 +178,13 @@ namespace TetrisApp
             g.FillRectangle(Brushes.Black, new Rectangle(new Point(0, 0), new Size(drawingBox.Width, drawingBox.Height)));
             
             //Draw moving piece
+            player.thisPiece().drawGhost(g, gameSize.Height);
             player.thisPiece().draw(g);
             
             //Draw all blocks
             foreach (TetrisBlock block in player.tetrisBlocks) 
             {
-                block.draw(g);
+                block.draw(g, false);
             }
 
             //Draw Score
@@ -184,8 +208,13 @@ namespace TetrisApp
             //Draw for local player
             foreach (TetrisBlock block in localPlayer.nextPiece().getPreviewBlocks())
             {
-                block.draw(g);
+                block.draw(g, false);
             }
+        }
+
+        public void stopTimer()
+        {
+            aTimer.Enabled = false;
         }
     }
 

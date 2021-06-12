@@ -1,15 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
+using System.Timers;
 using Microsoft.AspNetCore.SignalR;
 
 namespace TetrisServer.Hubs
 {
     public static class UserHandler
     {
-        public static HashSet<string> ConnectedIds = new HashSet<string>();
-        public static HashSet<string> ReadyIds = new HashSet<string>();
+        public static HashSet<string> ConnectedIds = new();
+        public static HashSet<string> ReadyIds = new();
+    }
+
+    public static class TimerHandler
+    {
+        private static Timer aTimer;
+        private static int steps;
+        public static void start()
+        {
+            // Create a timer and set a two second interval.
+            aTimer = new Timer();
+            aTimer.Interval = 450;
+            aTimer.Elapsed += (_, _) =>
+            {
+                steps++;
+                Debug.WriteLine(steps);
+            };
+            aTimer.AutoReset = true;
+            aTimer.Enabled = true;
+        }
     }
     
     public class TetrisHub : Hub
@@ -20,6 +41,7 @@ namespace TetrisServer.Hubs
             UserHandler.ConnectedIds.Add(Context.ConnectionId);
             return base.OnConnectedAsync();
         }
+        
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
@@ -37,6 +59,12 @@ namespace TetrisServer.Hubs
                 await Clients.All.SendAsync("Run");
             }
         }
+        
+        public async Task TradeRandom(int random)
+        {
+            await Clients.Others.SendAsync("TradeRandom", random);
+            TimerHandler.start();
+        }
         public async Task ServerState()
         {
             await Clients.Caller.SendAsync("ServerState", UserHandler.ConnectedIds.Count, UserHandler.ReadyIds.Count);
@@ -50,11 +78,6 @@ namespace TetrisServer.Hubs
         public async Task SendSerializedGrid(string grid)
         {
             await Clients.Others.SendAsync("SendSerializedGrid", grid);
-        }
-        
-        public async Task SyncRandom(int rand)
-        {
-            await Clients.Others.SendAsync("SyncRandom", rand);
         }
     }
 }
