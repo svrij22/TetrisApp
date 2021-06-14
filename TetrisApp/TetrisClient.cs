@@ -113,7 +113,7 @@ namespace TetrisApp
             //On Run Signal
             Connection.On("Run", () =>
             {
-                int i = Guid.NewGuid().GetHashCode();
+                int i = 1;// Guid.NewGuid().GetHashCode();
                 ownRandom = new Random(i);
                 Debug.WriteLine(ownRandom.GetHashCode());
                 Connection.InvokeAsync("TradeRandom", i);

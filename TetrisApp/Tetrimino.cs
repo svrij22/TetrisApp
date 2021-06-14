@@ -64,15 +64,20 @@ namespace TetrisApp
             {
                 if (canMove(-1 ,0, getPositionArray(pieceMatrix,0,0)))
                 {
-                    this.position.X -= 1;
+                    position.X -= 1;
                 }
             }
             if (e.KeyChar.Equals('d'))
             {
                 if (canMove(1, 0, getPositionArray(pieceMatrix,0,0)))
                 {
-                    this.position.X += 1;
+                    position.X += 1;
                 }
+            }
+            if (e.KeyChar.Equals('e'))
+            {
+                int moveDown = getSpaceBelow();
+                position.Y += moveDown;
             }
         }
 
@@ -146,22 +151,27 @@ namespace TetrisApp
                 block.draw(g, false);
             }
         }
-        
-        public void drawGhost(Graphics g, int height)
+
+        public int getSpaceBelow()
         {
             var maxDown = 0;
-            for(var i = 1; i < height; i++)
+            for(var i = 1; i < 50; i++)
             {
                 if (canMove(0, i, getPositionArray(pieceMatrix, 0, 0)))
                 {
                     maxDown = i;
                 }
             }
-            
+
+            return maxDown;
+        }
+        
+        public void drawGhost(Graphics g)
+        {
             foreach (TetrisBlock block in getBlocksForPiece())
             {
                 var opacity = 0.5;
-                block.position.Y += maxDown;
+                block.position.Y += getSpaceBelow();
                 block.draw(g, true);
             }
         }

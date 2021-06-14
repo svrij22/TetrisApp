@@ -36,7 +36,7 @@ namespace TetrisApp
             isMultiplayer = ismultiplayer;
             
             //Set gamesize
-            gameSize = new Size(40, 40); // sideways, downwards
+            gameSize = new Size(10, 15); // sideways, downwards
             
             //Set tetrisForm size
             tetrisForm.setGameSize(gameSize, isMultiplayer);
@@ -109,10 +109,7 @@ namespace TetrisApp
             
             //Game step
             localPlayer.doGameStep();
-            if (isMultiplayer)
-            {
-                otherPlayer.doGameStep();
-            }
+            otherPlayer?.doGameStep();
             steps++;
             
             /*Every 15 steps*/
@@ -156,11 +153,7 @@ namespace TetrisApp
         {
             localPlayer.getBox().Invalidate();
             tetrisForm.getPreviewPanel().Invalidate();
-            
-            if (isMultiplayer)
-            {
-                otherPlayer.getBox().Invalidate();
-            }
+            otherPlayer?.getBox().Invalidate();
         }
 
         /*
@@ -178,7 +171,7 @@ namespace TetrisApp
             g.FillRectangle(Brushes.Black, new Rectangle(new Point(0, 0), new Size(drawingBox.Width, drawingBox.Height)));
             
             //Draw moving piece
-            player.thisPiece().drawGhost(g, gameSize.Height);
+            player.thisPiece().drawGhost(g);
             player.thisPiece().draw(g);
             
             //Draw all blocks
