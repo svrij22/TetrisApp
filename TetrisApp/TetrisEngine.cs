@@ -42,7 +42,7 @@ namespace TetrisApp
             tetrisForm.setGameSize(gameSize, isMultiplayer);
             
             //Get local box
-            localPlayer = new TetrisPlayer(tetrisForm.getLocalPlayerBox(), gameSize, ownRandom, this);
+            localPlayer = new TetrisPlayer(tetrisForm.getLocalPlayerBox(), gameSize, ownRandom);
             
             //Set paint event
             tetrisForm.getLocalPlayerBox().Paint += (o, args) => paintForPlayer(args, localPlayer, true);
@@ -51,9 +51,10 @@ namespace TetrisApp
             tetrisForm.getPreviewPanel().Paint += paintPreview;
             tetrisForm.KeyPress += keyBoardHandler;
             
+            //If multiplayer active create other player and set paint event
             if (isMultiplayer)
             {
-                otherPlayer = new TetrisPlayer(tetrisForm.getOtherPlayerBox(), gameSize, otherRandom, this);
+                otherPlayer = new TetrisPlayer(tetrisForm.getOtherPlayerBox(), gameSize, otherRandom);
                 tetrisForm.getOtherPlayerBox().Paint += (o, args) => paintForPlayer(args, otherPlayer, false);
             }
             
@@ -69,7 +70,7 @@ namespace TetrisApp
             // Create a timer and set a two second interval.
             aTimer = new System.Timers.Timer();
             aTimer.Interval = defaultInterval;
-            aTimer.Elapsed += this.gameStep;
+            aTimer.Elapsed += gameStep;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
         }
@@ -80,13 +81,13 @@ namespace TetrisApp
 
         public void otherPlayerKeyPress(char key)
         {
-            otherPlayer.thisPiece().keyboardEvent(new KeyPressEventArgs(key));
+            otherPlayer.thisTetromino().keyboardEvent(new KeyPressEventArgs(key));
             redraw();
         }
 
         private void keyBoardHandler(object sender, KeyPressEventArgs e)
         {
-            localPlayer.thisPiece().keyboardEvent(e);
+            localPlayer.thisTetromino().keyboardEvent(e);
             tetrisClient?.sendKeyPress(e.KeyChar);
             redraw();
         }
@@ -119,9 +120,11 @@ namespace TetrisApp
             }
             
             redraw();
-            aTimer.Interval = defaultInterval;
         }
 
+        /*
+         * Game End event -> When one or two players are game over, stop the timers and show a message box with your score.
+         */
         public void gameEndEvent()
         {
             if (!isMultiplayer)
@@ -148,6 +151,10 @@ namespace TetrisApp
                 }
             }
         }
+        
+        /*
+         * Invalidates the panels and forces them to execute their paint event
+         */
 
         public void redraw()
         {
@@ -158,6 +165,7 @@ namespace TetrisApp
 
         /*
          * Drawing
+         * Each 'player' has their own logic.
          */
         public void paintForPlayer(PaintEventArgs e, TetrisPlayer player, bool drawScore) {
             
@@ -171,8 +179,8 @@ namespace TetrisApp
             g.FillRectangle(Brushes.Black, new Rectangle(new Point(0, 0), new Size(drawingBox.Width, drawingBox.Height)));
             
             //Draw moving piece
-            player.thisPiece().drawGhost(g);
-            player.thisPiece().draw(g);
+            player.thisTetromino().drawGhost(g);
+            player.thisTetromino().draw(g);
             
             //Draw all blocks
             foreach (TetrisBlock block in player.tetrisBlocks) 
@@ -187,6 +195,9 @@ namespace TetrisApp
             }
         }
 
+        /*
+         * Paint the preview panel, paint the next tetrimino
+         */
         public void paintPreview(object sender, PaintEventArgs e)
         {
             //Preview piece
@@ -199,7 +210,7 @@ namespace TetrisApp
             g.FillRectangle(Brushes.DimGray, new Rectangle(new Point(0, 0), new Size(prevPanel.Width, prevPanel.Height)));
             
             //Draw for local player
-            foreach (TetrisBlock block in localPlayer.nextPiece().getPreviewBlocks())
+            foreach (TetrisBlock block in localPlayer.nextTetromino().getPreviewBlocks())
             {
                 block.draw(g, false);
             }

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Serialization;
 using static TetrisApp.TetrisState;
 
 namespace TetrisApp
@@ -19,31 +15,32 @@ namespace TetrisApp
         public int playerScore;
         public Size boxSize;
         public Random rnd;
-        private List<Tetrimino> tetriminoList = new List<Tetrimino>();
+        private List<Tetromino> tetrominoList = new List<Tetromino>();
         public TetrisState state = Started;
-        public int lineRemove = -1;
-        public TetrisEngine engine;
 
-        public TetrisPlayer(PictureBox playerBox, Size boxSize, Random rnd, TetrisEngine engine)
+        public TetrisPlayer(PictureBox playerBox, Size boxSize, Random rnd)
         {
             this.playerBox = playerBox;
             this.boxSize = boxSize;
             this.rnd = rnd;
-            this.engine = engine;
-            
-            tetriminoList.Add(new Tetrimino(this));
-            tetriminoList.Add(new Tetrimino(this));
+
+            //Adds the first and next piece to the list
+            tetrominoList.Add(new Tetromino(this));
+            tetrominoList.Add(new Tetromino(this));
         }
-        
+
         /*
          * Multiplayer logic and serialization
          */
 
-
         public string serializeBlocks()
         {
             StringWriter stringWriter = new StringWriter();
-            foreach (var tetrisBlock in tetrisBlocks) { stringWriter.Write(tetrisBlock.serialize()); }
+            foreach (var tetrisBlock in tetrisBlocks)
+            {
+                stringWriter.Write(tetrisBlock.serialize());
+            }
+
             return stringWriter.ToString();
         }
 
@@ -57,39 +54,39 @@ namespace TetrisApp
                     tetrisBlocks.Add(TetrisBlock.fromString(blockStr));
                 }
                 catch (Exception ignored)
-                { }
+                {
+                }
             }
         }
 
-        public void setRandom(Random newRandom)
-        {
-            rnd = newRandom;
-        }
-
-        public Random getRandom()
-        {
-            return rnd;
-        }
-        
         /*
          * GAME LOGIC
          */
-        
+
         public void doGameStep()
         {
-            removeWhiteBlocks();
+            /*If not game over*/
             if (state != GameOver)
             {
-                if (!thisPiece().isLocked) thisPiece().move();
+                /*If cant move*/
+                if (!thisTetromino().move())
+                {
+                    /*Lock blocks and new tetrimino*/
+                    foreach (TetrisBlock block in thisTetromino().getBlocksForPiece())
+                    {
+                        addBlockToField(block);
+                    }
+                    newTetromino();
+                }
             }
             checkLines();
         }
-        
+
         /**/
         /* Blocks Logic*/
         /**/
-        
-        internal void addBlock(TetrisBlock block)
+
+        internal void addBlockToField(TetrisBlock block)
         {
             //Check if the blocks Y position is under < 0
             if (block.position.Y < 0)
@@ -97,87 +94,64 @@ namespace TetrisApp
                 state = GameOver;
                 return;
             }
+
             playerScore += 10;
             tetrisBlocks.Add(block);
         }
 
-        internal void newPiece()
+        internal void newTetromino()
         {
             if (state == GameOver) return;
-            
-            Console.WriteLine(tetriminoList);
-            tetriminoList.RemoveAt(0);
-            Tetrimino newTet = new Tetrimino(this);
-            tetriminoList.Add(newTet);
+
+            tetrominoList.RemoveAt(0);
+            Tetromino newTet = new Tetromino(this);
+            tetrominoList.Add(newTet);
         }
 
-        public Tetrimino thisPiece()
+        public Tetromino thisTetromino()
         {
-            return tetriminoList[0];
+            return tetrominoList[0];
         }
 
-        public Tetrimino nextPiece()
+        public Tetromino nextTetromino()
         {
-            return tetriminoList[1];
+            return tetrominoList[1];
         }
-        
+
         /**/
         /* LINE MUTATIONS*/
         /**/
-        
-        //Line mutations
+
         public void checkLines()
         {
-            for(var n = 0; n < boxSize.Height; n++)
+            //Map all horizontal lines with the amount of blocks present
+            Dictionary<int, int> lineMap = new Dictionary<int, int>();
+            tetrisBlocks.ForEach(b =>
             {
-                var blocksPerLine = 0;
-                foreach (var block in tetrisBlocks)
+                lineMap[b.position.Y] = lineMap.ContainsKey(b.position.Y) ? lineMap[b.position.Y] + 1 : 1;
+            });
+
+            //Check for each line how much blocks are present, and if equal to game width, remove them
+            lineMap.Keys.ToList().ForEach(yPos =>
+            {
+                if (lineMap[yPos] == boxSize.Width)
                 {
-                    if (block.position.Y == n) blocksPerLine += 1;
-                    if (blocksPerLine == boxSize.Width)
-                    {
-                        turnBlocksWhite(n);
-                        lineRemove = n;
-                    }
+                    tetrisBlocks = tetrisBlocks.Where(b => b.position.Y != yPos).ToList();
+                    hopBlocksFromHeight(yPos);
                 }
-            }
-        }
-        
-        //Removes the white blocks when done
-        public void removeWhiteBlocks()
-        {
-            if (lineRemove < 0) return;
-            tetrisBlocks = (from block in tetrisBlocks
-                                           where block.position.Y != lineRemove
-                                           select block).ToList();
-            hopBlocksFromHeight(lineRemove);
+            });
         }
 
         //Pushes all blocks from center height 1 position downwards
         private void hopBlocksFromHeight(int height)
         {
-            var blocksAboveLine = (from block in tetrisBlocks
-                where block.position.Y < lineRemove
-                select block).ToList();
-                
-            foreach (var block in blocksAboveLine)
+            tetrisBlocks.ToList().ForEach(b =>
             {
-                block.position.Y++;
-            }
-
+                if (b.position.Y < height) b.position.Y++;
+            });
             playerScore += 250;
-            lineRemove = -1;
         }
 
-        //Turns blocks at height white
-        public void turnBlocksWhite(int h)
-        {
-            foreach (var block in tetrisBlocks)
-            {
-                if (block.position.Y == h) block.setColor(Color.White);
-            }
-        }
-        
         /*
          * Drawing ETC
          */
