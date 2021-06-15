@@ -116,7 +116,7 @@ namespace TetrisApp
             /*Every 15 steps*/
             if (steps % 15 == 0)
             {
-                tetrisClient.SendSerializedGrid(localPlayer.serializeBlocks());
+                tetrisClient?.SendSerializedGrid(localPlayer.serializeBlocks());
             }
             
             redraw();
@@ -175,8 +175,6 @@ namespace TetrisApp
             //Get box
             PictureBox drawingBox = player.getBox();
             
-            //Fill box /w Back ground
-            g.FillRectangle(Brushes.Black, new Rectangle(new Point(0, 0), new Size(drawingBox.Width, drawingBox.Height)));
             
             //Draw moving piece
             player.thisTetromino().drawGhost(g);
@@ -212,7 +210,7 @@ namespace TetrisApp
             //Draw for local player
             foreach (TetrisBlock block in localPlayer.nextTetromino().getPreviewBlocks())
             {
-                block.draw(g, false);
+                block.draw(g, false, 16);
             }
         }
 

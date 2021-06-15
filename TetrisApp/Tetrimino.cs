@@ -40,15 +40,6 @@ namespace TetrisApp
             }
         }
 
-        public Tetromino(TetrisPlayer player, int[,] matrix, Point point, int i)
-        {
-            //Set default values
-            this.Player = player;
-            pieceMatrix = matrix;
-            color = Color.FromArgb(i);
-            position = point;
-        }
-
         //Move step event
         public bool move()
         {

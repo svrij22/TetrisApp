@@ -113,7 +113,7 @@ namespace TetrisApp
             //On Run Signal
             Connection.On("Run", () =>
             {
-                int i = 1;// Guid.NewGuid().GetHashCode();
+                int i = Guid.NewGuid().GetHashCode();
                 ownRandom = new Random(i);
                 Debug.WriteLine(ownRandom.GetHashCode());
                 Connection.InvokeAsync("TradeRandom", i);
@@ -168,6 +168,7 @@ namespace TetrisApp
         {
             try
             {
+                if (Connection == null) return;
                 ServerLabel.Text = "State: 'Stopped";
                 await Connection.StopAsync();
                 await Connection.DisposeAsync();

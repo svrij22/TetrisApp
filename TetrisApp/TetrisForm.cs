@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TetrisApp.Properties;
 
 namespace TetrisApp
 {
@@ -8,6 +9,8 @@ namespace TetrisApp
     {
         public PictureBox localBox;
         public PictureBox mpBox;
+
+        public int blockScale = 24;
         
         public TetrisForm()
         {
@@ -16,19 +19,22 @@ namespace TetrisApp
         
         public void setGameSize(Size size, bool multiplayer)
         {
+     
+            
             /*Picture box for drawing*/
             localBox = new PictureBox
             {
                 Name = "Tetris Drawing Box",
-                Size = new Size(size.Width* 16, size.Height*16),
+                Size = new Size(size.Width * blockScale, size.Height * blockScale),
                 Location = new Point(16, 16),
             };
+            localBox.BackgroundImage = Resources.BackG;
             Controls.Add(localBox);
 
             /*Dynamic size*/
             panel1.Width = 124;
-            Size = new Size((size.Width * 16) + 64 + panel1.Width, (size.Height * 16) + 72);
-            panel1.Left = size.Width * 16 + 32;
+            Size = new Size((size.Width * blockScale) + 64 + panel1.Width, (size.Height * blockScale) + 72);
+            panel1.Left = size.Width * blockScale + 32;
             panel1.Top = 16;
             panel1.Height = Size.Height - 72;
             
@@ -45,10 +51,10 @@ namespace TetrisApp
                 mpBox = new PictureBox
                 {
                     Name = "Tetris Drawing Box 2",
-                    Size = new Size(size.Width * 16, size.Height*16),
+                    Size = new Size(size.Width * blockScale, size.Height * blockScale),
                     Location = new Point(tempWidth - 16, 16),
                 };
-                Size = new Size((size.Width * 16) + tempWidth + 16, (size.Height * 16) + 72);
+                Size = new Size((size.Width * blockScale) + tempWidth + 16, (size.Height * blockScale) + 72);
                 Controls.Add(mpBox);
             }
             

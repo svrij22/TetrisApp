@@ -79,7 +79,8 @@ namespace TetrisApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(184, 388);
+            this.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.ClientSize = new System.Drawing.Size(244, 334);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
