@@ -181,7 +181,7 @@ namespace TetrisApp
             player.thisTetromino().draw(g);
             
             //Draw all blocks
-            foreach (TetrisBlock block in player.tetrisBlocks) 
+            foreach (TetrisBlock block in player.tetrisBlocks.ToArray().ToList()) // (SignalData error?) https://stackoverflow.com/questions/604831/collection-was-modified-enumeration-operation-may-not-execute
             {
                 block.draw(g, false);
             }

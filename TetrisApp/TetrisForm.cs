@@ -54,6 +54,7 @@ namespace TetrisApp
                     Size = new Size(size.Width * blockScale, size.Height * blockScale),
                     Location = new Point(tempWidth - 16, 16),
                 };
+                mpBox.BackgroundImage = Resources.BackG;
                 Size = new Size((size.Width * blockScale) + tempWidth + 16, (size.Height * blockScale) + 72);
                 Controls.Add(mpBox);
             }
