@@ -1,4 +1,6 @@
 ﻿
+using System.Drawing;
+
 namespace TetrisApp
 {
     partial class TetrisForm
@@ -79,10 +81,10 @@ namespace TetrisApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(184, 388);
+            this.ClientSize = new System.Drawing.Size(244, 334);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
-            this.IsMdiContainer = true;
+            this.BackColor = Color.Black;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;

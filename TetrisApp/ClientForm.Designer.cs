@@ -87,6 +87,7 @@ namespace TetrisApp
             this.Location = new System.Drawing.Point(15, 15);
             this.Name = "ClientForm";
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.Label label1;

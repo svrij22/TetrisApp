@@ -78,3 +78,4 @@ C:\Users\Sep\RiderProjects\TetrisApp\TetrisApp\bin\Debug\System.Threading.Tasks.
 C:\Users\Sep\RiderProjects\TetrisApp\TetrisApp\bin\Debug\System.ValueTuple.xml
 C:\Users\Sep\RiderProjects\TetrisApp\TetrisApp\obj\Debug\TetrisApp.exe.config
 C:\Users\Sep\RiderProjects\TetrisApp\TetrisApp\obj\Debug\TetrisApp.csproj.CopyComplete
+C:\Users\Sep\RiderProjects\TetrisApp\TetrisApp\bin\Debug\BackG.png

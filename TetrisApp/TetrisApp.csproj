@@ -209,6 +209,7 @@
     <Compile Include="ClientForm.Designer.cs">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tetrimino.cs" />
     <Compile Include="TetrisBlock.cs" />
     <Compile Include="TetrisClient.cs" />
     <Compile Include="TetrisForm.cs">
@@ -220,7 +221,6 @@
     <Compile Include="TetrisApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TetrisEngine.cs" />
-    <Compile Include="Tetrimino.cs" />
     <Compile Include="TetrisPlayer.cs" />
     <Compile Include="TetrisState.cs" />
     <EmbeddedResource Include="ClientForm.resx">
@@ -237,6 +237,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -251,6 +252,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BackG.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
